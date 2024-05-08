@@ -7,7 +7,9 @@ function saveTasksToLocalStorage(taskList) {
 
 function loadTasks() {
     const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
-    tasks.forEach(task => addTaskToDOM(task.description, task.timestamp));
+    tasks.forEach(task => {
+        addTaskToDOM(task.description, task.timestamp, task.completed);
+    });
 }
 
 function addTask() {
@@ -26,13 +28,13 @@ function addTask() {
     }
 }
 
-function addTaskToDOM(description, timestamp) {
-    const taskList = document.getElementById('todo-list');
+function addTaskToDOM(description, timestamp, isCompleted) {
+    const taskList = isCompleted ? document.getElementById('checked-list') : document.getElementById('todo-list');
     const taskElement = document.createElement('div');
     taskElement.className = 'todo-task';
     taskElement.innerHTML = `
         <div class="task-left">
-            <input type="checkbox" class="task-check">
+            <input type="checkbox" class="task-check" ${isCompleted ? 'checked' : ''}>
             <p class="task-title">${description}</p>
         </div>
         <div class="task-right">
@@ -70,8 +72,11 @@ function moveTaskToTodoList(taskElement, timestamp) {
 function updateTaskStatus(timestamp, isCompleted) {
     const tasks = JSON.parse(localStorage.getItem('tasks')) || [];
     const taskIndex = tasks.findIndex(task => task.timestamp === timestamp);
+
     if (taskIndex !== -1) {
         tasks[taskIndex].completed = isCompleted;
+    } else {
+        console.error('Task not found in storage:', timestamp);
     }
     saveTasksToLocalStorage(tasks);
 }
